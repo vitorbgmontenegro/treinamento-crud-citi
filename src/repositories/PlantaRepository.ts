@@ -7,11 +7,6 @@ export const createPlanta = async (data:Prisma.PlantaCreateInput ) =>{
     });
 };
 
-export const findAllPlantas = async (filtros: Prisma.PlantaWhereInput) => {
-    return await prisma.planta.findMany({
-        where: filtros,
-    });
-};
 
 export const findPlantaById = async (id:number) =>{
     return await prisma.planta.findUnique({
@@ -44,5 +39,15 @@ export const venderPlanta = async (id: number, quantidade: number) => {
 export const findPrecoEEstoque = async () => {
     return await prisma.planta.findMany({
         select: { preco: true, estoque: true },
+    });
+};
+
+export const findAllPlantas = async (
+    filtros: Prisma.PlantaWhereInput,
+    ordem?: Prisma.PlantaOrderByWithRelationInput,
+) => {
+    return await prisma.planta.findMany({
+        where: filtros,
+        orderBy: ordem,
     });
 };

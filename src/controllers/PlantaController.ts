@@ -169,30 +169,7 @@ export const updatePlanta = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Erro ao atualizar planta." });
   }
 };
-export const readAllPlantas = async (req: Request, res: Response) => {
-  try {
-    const { luminosidade, petFriendly } = req.query;
 
-    // Os filtros chegam da URL sempre como texto
-    if (luminosidade !== undefined && !Object.values(Luminosidade).includes(luminosidade as Luminosidade)) {
-      return res.status(400).json({ message: "Filtro luminosidade deve ser SOMBRA, MEIA_SOMBRA ou SOL_PLENO." });
-    }
-
-    if (petFriendly !== undefined && petFriendly !== "true" && petFriendly !== "false") {
-      return res.status(400).json({ message: "Filtro petFriendly deve ser true ou false." });
-    }
-
-    const plantas = await PlantaRepository.findAllPlantas({
-      luminosidade: luminosidade as Luminosidade | undefined,
-      petFriendly: petFriendly === undefined ? undefined : petFriendly === "true",
-    });
-
-    return res.status(200).json(plantas);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Erro ao buscar plantas." });
-  }
-};
 
 export const venderPlanta = async (req: Request, res: Response) => {
   try {
@@ -248,5 +225,42 @@ export const readValorTotalEstoque = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Erro ao calcular valor do estoque." });
+  }
+};
+export const readAllPlantas = async (req: Request, res: Response) => {
+  try {
+    const { luminosidade, petFriendly, nome, ordem } = req.query;
+
+    // Os filtros chegam da URL sempre como texto
+    if (luminosidade !== undefined && !Object.values(Luminosidade).includes(luminosidade as Luminosidade)) {
+      return res.status(400).json({ message: "Filtro luminosidade deve ser SOMBRA, MEIA_SOMBRA ou SOL_PLENO." });
+    }
+
+    if (petFriendly !== undefined && petFriendly !== "true" && petFriendly !== "false") {
+      return res.status(400).json({ message: "Filtro petFriendly deve ser true ou false." });
+    }
+
+    if (nome !== undefined && !(typeof nome === "string" && nome.trim() !== "")) {
+      return res.status(400).json({ message: "Filtro nome deve ser um texto não vazio." });
+    }
+
+    if (ordem !== undefined && ordem !== "preco" && ordem !== "nome") {
+      return res.status(400).json({ message: "Ordem deve ser preco ou nome." });
+    }
+
+    const plantas = await PlantaRepository.findAllPlantas(
+      {
+        luminosidade: luminosidade as Luminosidade | undefined,
+        petFriendly: petFriendly === undefined ? undefined : petFriendly === "true",
+        // contains = "contém esse pedaço"; insensitive = ignora maiúsculas e minúsculas
+        nome: nome === undefined ? undefined : { contains: nome.trim(), mode: "insensitive" },
+      },
+      ordem === undefined ? undefined : { [ordem]: "asc" },
+    );
+
+    return res.status(200).json(plantas);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Erro ao buscar plantas." });
   }
 };
