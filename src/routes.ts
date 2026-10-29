@@ -20,5 +20,6 @@ routes.post("/plantas", PlantaController.createPlanta);
 routes.get("/plantas/:id", PlantaController.readPlantaById);
 routes.delete("/plantas/:id", PlantaController.deletePlanta);
 routes.patch("/plantas/:id", PlantaController.updatePlanta);
+routes.get("/plantas", PlantaController.readAllPlantas);
 
 export default routes;
