@@ -36,6 +36,14 @@ const validarCampos = (dados: any): string | null => {
 
   return null;
 };
+// Converte o id da URL para número. Devolve o id ou null se for inválido.
+const lerId = (idTexto: string): number | null => {
+  const id = Number(idTexto);
+  if (!Number.isInteger(id) || id <= 0) {
+    return null;
+  }
+  return id;
+};
 
 export const createPlanta = async (req: Request, res: Response) => {
   try {
@@ -78,5 +86,46 @@ export const createPlanta = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Erro ao cadastrar planta." });
+  }
+};
+export const readPlantaById = async (req: Request, res: Response) => {
+  try {
+    const id = lerId(req.params.id);
+    if (id === null) {
+      return res.status(400).json({ message: "O id deve ser um número inteiro positivo." });
+    }
+
+    const planta = await PlantaRepository.findPlantaById(id);
+    if (!planta) {
+      return res.status(404).json({ message: "Planta não encontrada." });
+    }
+
+    return res.status(200).json(planta);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Erro ao buscar planta." });
+  }
+};
+
+export const deletePlanta = async (req: Request, res: Response) => {
+  try {
+    const id = lerId(req.params.id);
+    if (id === null) {
+      return res.status(400).json({ message: "O id deve ser um número inteiro positivo." });
+    }
+
+    // Antes de apagar, confere se a planta existe
+    const planta = await PlantaRepository.findPlantaById(id);
+    if (!planta) {
+      return res.status(404).json({ message: "Planta não encontrada." });
+    }
+
+    await PlantaRepository.deletePlanta(id);
+
+    // 204 No Content: deu certo e não há nada para devolver
+    return res.status(204).send();
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Erro ao deletar planta." });
   }
 };
