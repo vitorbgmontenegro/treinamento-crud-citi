@@ -31,3 +31,11 @@ export const deletePlanta = async (id: number) => {
         where: { id: id }
     });
 };
+
+// Só diminui se ainda tiver estoque suficiente no momento da venda
+export const venderPlanta = async (id: number, quantidade: number) => {
+    return await prisma.planta.updateMany({
+        where: { id: id, estoque: { gte: quantidade } },
+        data: { estoque: { decrement: quantidade } },
+    });
+};
