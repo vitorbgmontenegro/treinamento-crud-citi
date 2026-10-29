@@ -264,3 +264,15 @@ export const readAllPlantas = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Erro ao buscar plantas." });
   }
 };
+
+export const readPlantasEsgotadas = async (req: Request, res: Response) => {
+  try {
+    // Esgotada = estoque zero. Reaproveita a mesma busca da listagem, só mudando o filtro
+    const plantas = await PlantaRepository.findAllPlantas({ estoque: 0 });
+
+    return res.status(200).json(plantas);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Erro ao buscar plantas esgotadas." });
+  }
+};

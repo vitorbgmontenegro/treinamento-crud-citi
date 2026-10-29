@@ -16,12 +16,14 @@ routes.patch("/users/:id", UserController.updateUser);
 routes.delete("/users/:id", UserController.deleteUser);
 
 // CRUD de plantas
+// Rotas fixas vêm antes das que têm :id, senão "esgotadas" seria tratado como um id
 routes.post("/plantas", PlantaController.createPlanta);
-routes.get("/plantas/:id", PlantaController.readPlantaById);
-routes.delete("/plantas/:id", PlantaController.deletePlanta);
-routes.patch("/plantas/:id", PlantaController.updatePlanta);
 routes.get("/plantas", PlantaController.readAllPlantas);
-routes.post("/plantas/:id/venda", PlantaController.venderPlanta);
+routes.get("/plantas/esgotadas", PlantaController.readPlantasEsgotadas);
 routes.get("/plantas/estoque/valor-total", PlantaController.readValorTotalEstoque);
+routes.get("/plantas/:id", PlantaController.readPlantaById);
+routes.patch("/plantas/:id", PlantaController.updatePlanta);
+routes.delete("/plantas/:id", PlantaController.deletePlanta);
+routes.post("/plantas/:id/venda", PlantaController.venderPlanta);
 
 export default routes;
