@@ -36,7 +36,21 @@ Todos os filtros e a ordenação podem ser usados juntos na mesma busca.
 
 ## 2. Como foi feito
 
+Usei como base o CRUD de usuário que já vinha no projeto. Ele foi o meu modelo para entender a organização em camadas (rotas, controller e repository) e o roteiro de cada função: ler os dados, validar, chamar o repository e responder com o status certo. A partir dele, fui aprendendo a aplicar cada parte nova que a planta pedia.
 
+A ordem do trabalho foi a do enunciado: primeiro o model e a migration, depois o repository e, por último, o controller e as rotas, uma rota de cada vez. A cada rota pronta, eu testava no Thunder Client (os casos de sucesso e os de erro) e fazia um commit.
+
+Algumas decisões que tomei e por quê:
+
+- **Uma função só para validar os campos, usada no cadastro e na edição.** As regras dos campos são as mesmas nos dois casos. A função confere só os campos que vieram e ignora os que não vieram, então serve para o PATCH também. No cadastro, antes dela, confiro se todos os campos foram enviados.
+- **Comparar com `undefined` em vez de usar `!campo`.** O controller de usuário usa `!campo`, mas para a planta isso daria errado: `!0` e `!false` são verdadeiros, então uma planta com estoque 0 ou que não é pet-friendly seria recusada.
+- **Validar o id da URL.** O id chega como texto, então converto para número e confiro se é inteiro e positivo. Assim `/plantas/abc` dá 400, coisa que o controller de usuário não fazia.
+- **Buscar a planta antes de editar, apagar ou vender.** Se ela não existir, respondo 404. Sem isso, o erro do Prisma cairia no catch e viraria um 500.
+- **Mandar para o banco campo por campo, nunca o `req.body` inteiro**, para nenhum campo a mais chegar no banco.
+- **A venda feita numa operação só no banco.** Se eu só conferisse o estoque e depois diminuísse, duas pessoas comprando o último vaso ao mesmo tempo poderiam passar as duas pela checagem e deixar o estoque negativo. Por isso a diminuição usa um `updateMany` com a condição "estoque maior ou igual à quantidade". O banco checa e diminui junto, e se não tiver estoque, nada é alterado.
+- **O valor total calculado no código.** O `aggregate` do Prisma soma uma coluna, mas não multiplica preço por estoque. Então busco só esses dois campos e somo com um `for`.
+- **Rotas fixas antes das que têm `:id`.** O Express usa a primeira rota que combinar, então se `/plantas/esgotadas` viesse depois de `/plantas/:id`, "esgotadas" seria tratado como um id.
+- **O seed só roda com o banco vazio**, para não duplicar as plantas se alguém rodar duas vezes, e sem apagar nada que já esteja cadastrado.
 
 ## 3. Principais dificuldades
 
