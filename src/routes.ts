@@ -22,5 +22,6 @@ routes.delete("/plantas/:id", PlantaController.deletePlanta);
 routes.patch("/plantas/:id", PlantaController.updatePlanta);
 routes.get("/plantas", PlantaController.readAllPlantas);
 routes.post("/plantas/:id/venda", PlantaController.venderPlanta);
+routes.get("/plantas/estoque/valor-total", PlantaController.readValorTotalEstoque);
 
 export default routes;
